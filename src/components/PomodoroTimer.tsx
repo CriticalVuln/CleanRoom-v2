@@ -38,9 +38,15 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
       try {
         const { sessionId: savedSessionId, sessionStartTime: savedStartTime, isRunning: savedIsRunning } = JSON.parse(savedState);
         if (savedIsRunning && savedStartTime && savedSessionId) {
+          const startTime = new Date(savedStartTime);
           setSessionId(savedSessionId);
-          setSessionStartTime(new Date(savedStartTime));
+          setSessionStartTime(startTime);
           setIsRunning(true);
+          
+          // Immediately calculate and set the elapsed time
+          const now = new Date();
+          const elapsed = Math.floor((now.getTime() - startTime.getTime()) / 1000);
+          setElapsedTime(elapsed);
         }
       } catch (error) {
         console.error('Error loading timer state:', error);
@@ -146,6 +152,13 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
     };
   }, [isRunning, sessionStartTime, updateElapsedTime]);
 
+  // Ensure timer is updated immediately when component has a running timer
+  useEffect(() => {
+    if (isRunning && sessionStartTime) {
+      updateElapsedTime();
+    }
+  }, [isRunning, sessionStartTime, updateElapsedTime]);
+
   // Handle page visibility changes to ensure accurate timing
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -162,12 +175,30 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
       }
     };
 
+    const handlePageShow = () => {
+      if (isRunning) {
+        // Page was restored from bfcache (important for mobile browsers)
+        updateElapsedTime();
+      }
+    };
+
+    const handleResume = () => {
+      if (isRunning) {
+        // App resumed from background (mobile)
+        updateElapsedTime();
+      }
+    };
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('focus', handleFocus);
+    window.addEventListener('pageshow', handlePageShow);
+    window.addEventListener('resume', handleResume);
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('pageshow', handlePageShow);
+      window.removeEventListener('resume', handleResume);
     };
   }, [isRunning, updateElapsedTime]);
 
