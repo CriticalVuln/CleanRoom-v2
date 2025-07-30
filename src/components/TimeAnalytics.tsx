@@ -48,6 +48,14 @@ const TimeAnalytics: React.FC<TimeAnalyticsProps> = ({ data }) => {
     return `${mins}m`;
   };
 
+  const formatAverageTime = (minutes: number) => {
+    const hours = minutes / 60;
+    if (hours >= 1) {
+      return `${hours.toFixed(1)}h`;
+    }
+    return `${Math.round(minutes)}m`;
+  };
+
   const getTimePeriodLabel = (period: string) => {
     switch (period) {
       case '7days': return '7 Days';
@@ -179,7 +187,7 @@ const TimeAnalytics: React.FC<TimeAnalyticsProps> = ({ data }) => {
             <div className="text-center">
               <div className="text-gray-500 dark:text-gray-400">Avg</div>
               <div className="font-semibold text-purple-600 dark:text-purple-400">
-                {formatHours(averageTime)}
+                {formatAverageTime(averageTime)}
               </div>
             </div>
             <div className="text-center">
