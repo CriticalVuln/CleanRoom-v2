@@ -4,6 +4,7 @@ import { format, startOfDay, endOfDay, subDays } from 'date-fns';
 import { sampleTodos } from '../data/sampleData';
 
 const STORAGE_KEY = 'todo-dashboard-data';
+const SETTINGS_KEY = 'todo-dashboard-settings';
 
 export const useTodos = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -11,36 +12,74 @@ export const useTodos = () => {
 
   // Load data from localStorage on mount
   useEffect(() => {
-    const savedData = localStorage.getItem(STORAGE_KEY);
-    if (savedData) {
-      const parsed = JSON.parse(savedData);
-      setTodos(parsed.todos.map((todo: any) => ({
-        ...todo,
-        createdAt: new Date(todo.createdAt),
-        completedAt: todo.completedAt ? new Date(todo.completedAt) : undefined,
-        timeSpent: todo.timeSpent || 0,
-        pomodoroSessions: todo.pomodoroSessions?.map((session: any) => ({
-          ...session,
-          startTime: new Date(session.startTime),
-          endTime: session.endTime ? new Date(session.endTime) : undefined,
-        })) || [],
-      })));
-    } else {
-      // If no data in localStorage, use sample data
+    try {
+      const savedData = localStorage.getItem(STORAGE_KEY);
+      if (savedData) {
+        const parsed = JSON.parse(savedData);
+        setTodos(parsed.todos.map((todo: any) => ({
+          ...todo,
+          createdAt: new Date(todo.createdAt),
+          completedAt: todo.completedAt ? new Date(todo.completedAt) : undefined,
+          timeSpent: todo.timeSpent || 0,
+          pomodoroSessions: todo.pomodoroSessions?.map((session: any) => ({
+            ...session,
+            startTime: new Date(session.startTime),
+            endTime: session.endTime ? new Date(session.endTime) : undefined,
+          })) || [],
+        })));
+      } else {
+        // If no data in localStorage, use sample data
+        setTodos(sampleTodos);
+      }
+    } catch (error) {
+      console.error('Error loading todos from localStorage:', error);
       setTodos(sampleTodos);
     }
     
-    // Check for dark mode preference
-    const isDark = localStorage.getItem('darkMode') === 'true' || 
-                   (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    setDarkMode(isDark);
-    document.documentElement.classList.toggle('dark', isDark);
+    // Load settings including dark mode preference
+    try {
+      const savedSettings = localStorage.getItem(SETTINGS_KEY);
+      if (savedSettings) {
+        const settings = JSON.parse(savedSettings);
+        setDarkMode(settings.darkMode ?? false);
+      } else {
+        // Check system preference if no saved settings
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        setDarkMode(isDark);
+      }
+    } catch (error) {
+      console.error('Error loading settings from localStorage:', error);
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setDarkMode(isDark);
+    }
+    
+    document.documentElement.classList.toggle('dark', darkMode);
   }, []);
 
-  // Save data to localStorage whenever todos change
+  // Save todos to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ todos }));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ 
+        todos,
+        lastUpdated: new Date().toISOString()
+      }));
+    } catch (error) {
+      console.error('Error saving todos to localStorage:', error);
+    }
   }, [todos]);
+
+  // Save settings to localStorage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify({ 
+        darkMode,
+        lastUpdated: new Date().toISOString()
+      }));
+      document.documentElement.classList.toggle('dark', darkMode);
+    } catch (error) {
+      console.error('Error saving settings to localStorage:', error);
+    }
+  }, [darkMode]);
 
   const addTodo = (text: string, priority: Todo['priority'] = 'medium', category?: string) => {
     const newTodo: Todo = {
@@ -80,16 +119,7 @@ export const useTodos = () => {
 
   const toggleDarkMode = () => {
     const newDarkMode = !darkMode;
-    
-    // Add transition class before changing theme
-    document.documentElement.style.setProperty('color-scheme', newDarkMode ? 'dark' : 'light');
-    
-    // Use requestAnimationFrame for smoother transition
-    requestAnimationFrame(() => {
-      setDarkMode(newDarkMode);
-      localStorage.setItem('darkMode', newDarkMode.toString());
-      document.documentElement.classList.toggle('dark', newDarkMode);
-    });
+    setDarkMode(newDarkMode);
   };
 
   const getStats = (): TodoStats => {
@@ -227,6 +257,7 @@ export const useTodos = () => {
     if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
       setTodos([]);
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(SETTINGS_KEY);
     }
   };
 

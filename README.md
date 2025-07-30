@@ -1,6 +1,6 @@
 # Todo Dashboard 📝
 
-A modern, feature-rich todo list web application with beautiful charts and analytics. Built with React, TypeScript, and Tailwind CSS.
+A modern, feature-rich todo list web application with beautiful charts and analytics. Built with React, TypeScript, and Tailwind CSS with automatic local storage.
 
 ## ✨ Features
 
@@ -8,13 +8,16 @@ A modern, feature-rich todo list web application with beautiful charts and analy
 - **Dark Mode Toggle**: Seamless switching between light and dark themes
 - **Task Priority System**: Organize tasks by Low, Medium, and High priority
 - **Category Support**: Group tasks with custom categories
-- **Activity Heatmap**: GitHub-style heatmap showing daily task completion
+- **Pomodoro Timer**: Built-in timer for productivity tracking
+- **Time Analytics**: Track time spent on tasks with detailed charts
 - **Analytics Charts**: 
   - Priority distribution (doughnut chart)
   - 7-day completion trend (bar chart)
+  - Time analytics with 30-day view
 - **Statistics Dashboard**: Track total, completed, pending tasks, and streak
+- **Auto-Save**: All tasks and settings automatically saved to local storage
+- **Data Management**: Export/import functionality with backup capabilities
 - **Responsive Design**: Works perfectly on desktop and mobile devices
-- **Local Storage**: Your data persists between sessions
 
 ## 🚀 Getting Started
 
@@ -36,15 +39,61 @@ A modern, feature-rich todo list web application with beautiful charts and analy
    npm run dev
    ```
 
-4. Open your browser and visit `http://localhost:5173`
+4. Open your browser and visit `http://localhost:3000`
+
+## 📦 Build for Production
+
+```bash
+npm run build
+```
+
+## 🌐 Deploy to Vercel
+
+### Method 1: Using Vercel CLI
+1. Install Vercel CLI:
+   ```bash
+   npm i -g vercel
+   ```
+
+2. Login to Vercel:
+   ```bash
+   vercel login
+   ```
+
+3. Deploy:
+   ```bash
+   vercel --prod
+   ```
+
+### Method 2: GitHub Integration
+1. Push your code to a GitHub repository
+2. Go to [vercel.com](https://vercel.com)
+3. Sign in with GitHub
+4. Click "New Project" and import your repository
+5. Vercel will automatically detect the settings and deploy
+
+The app will be automatically deployed with optimal settings for Vite and React.
 
 ## 🎯 Usage
 
 1. **Add Tasks**: Use the input field to create new tasks with priority levels
 2. **Manage Tasks**: Check off completed tasks, edit text, or delete items
-3. **Filter Tasks**: Use the dropdown filters to view specific task types
-4. **Track Progress**: Monitor your productivity with the charts and heatmap
-5. **Dark Mode**: Toggle between light and dark themes using the button in the header
+3. **Pomodoro Timer**: Start focused work sessions with the built-in timer
+4. **Track Progress**: Monitor your productivity with charts and analytics
+5. **Dark Mode**: Toggle between light and dark themes - preference is automatically saved
+6. **Data Backup**: Export your data or import from previous backups
+7. **Settings**: Access advanced options in the settings panel
+
+## 💾 Local Storage
+
+The app automatically saves:
+- All your tasks and their completion status
+- Dark mode preference
+- Time tracking data
+- Pomodoro sessions
+- All settings and preferences
+
+Your data persists between browser sessions and will be available when you return to the app.
 
 ## 🛠️ Technology Stack
 
@@ -57,11 +106,6 @@ A modern, feature-rich todo list web application with beautiful charts and analy
 - **Storage**: Browser LocalStorage
 
 ## 📊 Analytics Features
-
-### Activity Heatmap
-- GitHub-style contribution graph
-- Shows daily task completion over the past year
-- Color intensity indicates task completion frequency
 
 ### Priority Distribution Chart
 - Doughnut chart showing task breakdown by priority
@@ -103,8 +147,7 @@ src/
 │   ├── StatsCards.tsx  # Statistics overview cards
 │   ├── TodoInput.tsx   # Task input form
 │   ├── TodoList.tsx    # Task list with filters
-│   ├── Charts.tsx      # Analytics charts
-│   └── Heatmap.tsx     # Activity heatmap
+│   └── Charts.tsx      # Analytics charts
 ├── hooks/              # Custom React hooks
 │   └── useTodos.ts     # Todo state management
 ├── types/              # TypeScript definitions
