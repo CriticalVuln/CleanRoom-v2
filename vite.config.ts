@@ -7,12 +7,14 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
+    minify: 'esbuild',
+    target: 'es2020',
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
           charts: ['chart.js', 'react-chartjs-2'],
-          utils: ['date-fns', 'lucide-react']
+          utils: ['date-fns', 'lucide-react', 'clsx']
         }
       }
     }
@@ -20,5 +22,8 @@ export default defineConfig({
   server: {
     port: 3000,
     open: true
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'chart.js', 'react-chartjs-2', 'date-fns', 'lucide-react', 'clsx']
   }
 })
