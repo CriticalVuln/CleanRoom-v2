@@ -123,12 +123,12 @@ export const useTodos = () => {
   };
 
   const getStats = (): TodoStats => {
-    const currentDate = new Date('2025-07-30'); // Current date: July 30, 2025
+    const currentDate = new Date(); // Use actual current date
     const total = todos.length;
     const completed = todos.filter(todo => todo.completed).length;
     const pending = total - completed;
     
-    // Check if today (July 30, 2025) has completed tasks
+    // Check if today has completed tasks
     const todayStart = startOfDay(currentDate);
     const todayEnd = endOfDay(currentDate);
     const completedToday = todos.filter(todo => 
@@ -171,86 +171,116 @@ export const useTodos = () => {
   };
 
   const getPriorityStats = () => {
-    const stats = { low: 0, medium: 0, high: 0 };
-    todos.forEach(todo => {
-      if (!todo.completed) {
-        stats[todo.priority]++;
-      }
-    });
-    return stats;
+    const currentDate = new Date();
+    
+    const getStatsForPeriod = (days: number) => {
+      const stats = { low: 0, medium: 0, high: 0 };
+      const cutoffDate = subDays(currentDate, days);
+      
+      todos.forEach(todo => {
+        if (todo.completed && todo.completedAt && todo.completedAt >= cutoffDate) {
+          stats[todo.priority]++;
+        }
+      });
+      return stats;
+    };
+
+    return {
+      '7days': getStatsForPeriod(7),
+      '30days': getStatsForPeriod(30),
+      '180days': getStatsForPeriod(180),
+      '1year': getStatsForPeriod(365),
+    };
   };
 
   const getCompletionTrend = () => {
-    const trend = [];
-    const currentDate = new Date('2025-07-30'); // Current date: July 30, 2025
+    const currentDate = new Date(); // Use actual current date
     
-    for (let i = 6; i >= 0; i--) {
-      const date = subDays(currentDate, i);
-      const dayStart = startOfDay(date);
-      const dayEnd = endOfDay(date);
-      
-      // Include data up to and including current date
-      if (date <= currentDate) {
-        const completed = todos.filter(todo => 
-          todo.completed && 
-          todo.completedAt && 
-          todo.completedAt >= dayStart && 
-          todo.completedAt <= dayEnd
-        ).length;
+    const getTrendForPeriod = (days: number, formatStr: string = 'MMM dd') => {
+      const trend = [];
+      for (let i = days - 1; i >= 0; i--) {
+        const date = subDays(currentDate, i);
+        const dayStart = startOfDay(date);
+        const dayEnd = endOfDay(date);
         
-        trend.push({
-          date: format(date, 'MMM dd'),
-          completed
-        });
-      }
-    }
-    
-    return trend;
-  };
-
-  const getTimeAnalytics = (): TimeData[] => {
-    const data: TimeData[] = [];
-    const currentDate = new Date('2025-07-30'); // Current date: July 30, 2025
-    
-    // Generate data for the last 30 days up to current date
-    for (let i = 29; i >= 0; i--) {
-      const date = subDays(currentDate, i);
-      const dayStart = startOfDay(date);
-      const dayEnd = endOfDay(date);
-      
-      // Only include data up to current date
-      if (date > currentDate) continue;
-      
-      // Calculate total time spent on tasks completed on this day
-      const dayTodos = todos.filter(todo => {
-        if (!todo.completedAt) return false;
-        return todo.completedAt >= dayStart && todo.completedAt <= dayEnd;
-      });
-      
-      // Also include time from pomodoro sessions on this day
-      let totalMinutes = 0;
-      
-      // Add completed task time
-      totalMinutes += dayTodos.reduce((sum, todo) => sum + (todo.timeSpent || 0), 0);
-      
-      // Add time from pomodoro sessions that occurred on this day
-      todos.forEach(todo => {
-        if (todo.pomodoroSessions) {
-          todo.pomodoroSessions.forEach(session => {
-            if (session.startTime >= dayStart && session.startTime <= dayEnd) {
-              totalMinutes += session.duration;
-            }
+        // Include data up to and including current date
+        if (date <= currentDate) {
+          const completed = todos.filter(todo => 
+            todo.completed && 
+            todo.completedAt && 
+            todo.completedAt >= dayStart && 
+            todo.completedAt <= dayEnd
+          ).length;
+          
+          trend.push({
+            date: format(date, formatStr),
+            completed
           });
         }
-      });
+      }
+      return trend;
+    };
+
+    return {
+      '7days': getTrendForPeriod(7, 'MMM dd'),
+      '30days': getTrendForPeriod(30, 'MMM dd'),
+      '180days': getTrendForPeriod(180, 'MMM dd').filter((_, index) => index % 7 === 0), // Weekly samples
+      '1year': getTrendForPeriod(365, 'MMM yyyy').filter((_, index) => index % 30 === 0), // Monthly samples
+    };
+  };
+
+  const getTimeAnalytics = () => {
+    const getAnalyticsForPeriod = (days: number): TimeData[] => {
+      const data: TimeData[] = [];
+      const currentDate = new Date(); // Use actual current date
       
-      data.push({
-        date: format(date, 'yyyy-MM-dd'),
-        totalMinutes,
-      });
-    }
-    
-    return data;
+      // Generate data for the specified number of days up to current date
+      for (let i = days - 1; i >= 0; i--) {
+        const date = subDays(currentDate, i);
+        const dayStart = startOfDay(date);
+        const dayEnd = endOfDay(date);
+        
+        // Only include data up to current date
+        if (date > currentDate) continue;
+        
+        // Calculate total time spent on tasks completed on this day
+        const dayTodos = todos.filter(todo => {
+          if (!todo.completedAt) return false;
+          return todo.completedAt >= dayStart && todo.completedAt <= dayEnd;
+        });
+        
+        // Also include time from pomodoro sessions on this day
+        let totalMinutes = 0;
+        
+        // Add completed task time
+        totalMinutes += dayTodos.reduce((sum, todo) => sum + (todo.timeSpent || 0), 0);
+        
+        // Add time from pomodoro sessions that occurred on this day
+        todos.forEach(todo => {
+          if (todo.pomodoroSessions) {
+            todo.pomodoroSessions.forEach(session => {
+              if (session.startTime >= dayStart && session.startTime <= dayEnd) {
+                totalMinutes += session.duration;
+              }
+            });
+          }
+        });
+        
+        data.push({
+          date: format(date, 'yyyy-MM-dd'),
+          totalMinutes,
+        });
+      }
+      
+      return data;
+    };
+
+    return {
+      '7days': getAnalyticsForPeriod(7),
+      '30days': getAnalyticsForPeriod(30),
+      '180days': getAnalyticsForPeriod(180),
+      '1year': getAnalyticsForPeriod(365),
+    };
   };
 
   const clearAllData = () => {
