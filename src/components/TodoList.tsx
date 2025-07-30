@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Todo, PomodoroSession } from '../types';
-import { Check, X, Edit2, AlertCircle, Circle, Clock } from 'lucide-react';
+import { Check, X, Edit2 } from 'lucide-react';
 import { format } from 'date-fns';
 import PomodoroTimer from './PomodoroTimer';
 
@@ -50,17 +50,6 @@ const TodoList: React.FC<TodoListProps> = ({ todos, onToggleTodo, onDeleteTodo, 
     return statusMatch && priorityMatch;
   });
 
-  const getPriorityIcon = (priority: Todo['priority']) => {
-    switch (priority) {
-      case 'high':
-        return <AlertCircle className="h-4 w-4 text-red-500" />;
-      case 'medium':
-        return <Circle className="h-4 w-4 text-yellow-500" />;
-      case 'low':
-        return <Clock className="h-4 w-4 text-green-500" />;
-    }
-  };
-
   const getPriorityColor = (priority: Todo['priority']) => {
     switch (priority) {
       case 'high':
@@ -69,6 +58,28 @@ const TodoList: React.FC<TodoListProps> = ({ todos, onToggleTodo, onDeleteTodo, 
         return 'border-l-yellow-500 bg-yellow-50 dark:bg-yellow-900/20';
       case 'low':
         return 'border-l-green-500 bg-green-50 dark:bg-green-900/20';
+    }
+  };
+
+  const getPrioritySymbol = (priority: Todo['priority']) => {
+    switch (priority) {
+      case 'high':
+        return '!!!';
+      case 'medium':
+        return '!!';
+      case 'low':
+        return '!';
+    }
+  };
+
+  const getPrioritySymbolColor = (priority: Todo['priority']) => {
+    switch (priority) {
+      case 'high':
+        return 'text-red-500';
+      case 'medium':
+        return 'text-yellow-500';
+      case 'low':
+        return 'text-green-500';
     }
   };
 
@@ -146,10 +157,6 @@ const TodoList: React.FC<TodoListProps> = ({ todos, onToggleTodo, onDeleteTodo, 
                 {todo.completed && <Check className="h-3 w-3" />}
               </button>
 
-              <div className="flex items-center gap-1 flex-shrink-0">
-                {getPriorityIcon(todo.priority)}
-              </div>
-
               <div className="flex-1 min-w-0">
                 {editingId === todo.id ? (
                   <div className="flex gap-2">
@@ -179,13 +186,18 @@ const TodoList: React.FC<TodoListProps> = ({ todos, onToggleTodo, onDeleteTodo, 
                   </div>
                 ) : (
                   <div>
-                    <p
-                      className={`text-gray-900 dark:text-white ${
-                        todo.completed ? 'line-through text-gray-500 dark:text-gray-400' : ''
-                      }`}
-                    >
-                      {todo.text}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-sm font-bold ${getPrioritySymbolColor(todo.priority)}`}>
+                        {getPrioritySymbol(todo.priority)}
+                      </span>
+                      <p
+                        className={`text-gray-900 dark:text-white ${
+                          todo.completed ? 'line-through text-gray-500 dark:text-gray-400' : ''
+                        }`}
+                      >
+                        {todo.text}
+                      </p>
+                    </div>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
                       {todo.category && (
                         <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs rounded-full">
