@@ -21,7 +21,6 @@ function App() {
     getCompletionTrend,
     getTimeAnalytics,
     clearAllData,
-    loadSampleData,
     exportData,
     importData,
   } = useTodos();
@@ -61,7 +60,6 @@ function App() {
         
         <SettingsPanel
           onClearData={clearAllData}
-          onLoadSampleData={loadSampleData}
           onExportData={exportData}
           onImportData={importData}
         />

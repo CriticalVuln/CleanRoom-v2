@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Todo, TodoStats, TimeData } from '../types';
 import { format, startOfDay, endOfDay, subDays } from 'date-fns';
-import { sampleTodos } from '../data/sampleData';
 
 const STORAGE_KEY = 'todo-dashboard-data';
 const SETTINGS_KEY = 'todo-dashboard-settings';
@@ -28,12 +27,12 @@ export const useTodos = () => {
           })) || [],
         })));
       } else {
-        // If no data in localStorage, use sample data
-        setTodos(sampleTodos);
+        // If no data in localStorage, start with empty array
+        setTodos([]);
       }
     } catch (error) {
       console.error('Error loading todos from localStorage:', error);
-      setTodos(sampleTodos);
+      setTodos([]);
     }
     
     // Load settings including dark mode preference
@@ -243,17 +242,8 @@ export const useTodos = () => {
         // Only include data up to current date
         if (date > currentDate) continue;
         
-        // Calculate total time spent on tasks completed on this day
-        const dayTodos = todos.filter(todo => {
-          if (!todo.completedAt) return false;
-          return todo.completedAt >= dayStart && todo.completedAt <= dayEnd;
-        });
-        
-        // Also include time from pomodoro sessions on this day
+        // Calculate total time spent based on when work was actually done (pomodoro sessions)
         let totalMinutes = 0;
-        
-        // Add completed task time
-        totalMinutes += dayTodos.reduce((sum, todo) => sum + (todo.timeSpent || 0), 0);
         
         // Add time from pomodoro sessions that occurred on this day
         todos.forEach(todo => {
@@ -288,12 +278,6 @@ export const useTodos = () => {
       setTodos([]);
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(SETTINGS_KEY);
-    }
-  };
-
-  const loadSampleData = () => {
-    if (confirm('This will replace your current tasks with sample data. Continue?')) {
-      setTodos(sampleTodos);
     }
   };
 
@@ -348,7 +332,6 @@ export const useTodos = () => {
     getCompletionTrend,
     getTimeAnalytics,
     clearAllData,
-    loadSampleData,
     exportData,
     importData,
   };

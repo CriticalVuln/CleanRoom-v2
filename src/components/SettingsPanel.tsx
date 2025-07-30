@@ -3,14 +3,12 @@ import { Settings, Download, Upload, RefreshCw, Trash2, X } from 'lucide-react';
 
 interface SettingsPanelProps {
   onClearData: () => void;
-  onLoadSampleData: () => void;
   onExportData: () => void;
   onImportData: (file: File) => void;
 }
 
 const SettingsPanel: React.FC<SettingsPanelProps> = ({
   onClearData,
-  onLoadSampleData,
   onExportData,
   onImportData,
 }) => {
@@ -88,17 +86,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 onChange={handleFileChange}
                 className="hidden"
               />
-              
-              <button
-                onClick={() => {
-                  onLoadSampleData();
-                  setIsOpen(false);
-                }}
-                className="w-full btn-secondary flex items-center gap-2 justify-center"
-              >
-                <RefreshCw className="h-4 w-4" />
-                Load Sample Data
-              </button>
               
               <button
                 onClick={() => {
