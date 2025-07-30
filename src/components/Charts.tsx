@@ -94,7 +94,7 @@ const Charts: React.FC<ChartsProps> = ({ priorityStats, completionTrend }) => {
       legend: {
         position: 'top' as const,
         labels: {
-          color: '#6b7280',
+          color: 'rgb(107, 114, 128)', // Fixed grey color
           font: {
             size: 12,
           },
@@ -105,24 +105,26 @@ const Charts: React.FC<ChartsProps> = ({ priorityStats, completionTrend }) => {
       y: {
         beginAtZero: true,
         ticks: {
-          color: '#9ca3af',
+          color: 'rgb(156, 163, 175)',
         },
         grid: {
-          color: '#e5e7eb',
+          color: 'rgb(229, 231, 235)',
+          drawOnChartArea: true,
         },
         border: {
-          color: '#e5e7eb',
+          color: 'rgb(229, 231, 235)',
         },
       },
       x: {
         ticks: {
-          color: '#9ca3af',
+          color: 'rgb(156, 163, 175)',
         },
         grid: {
-          color: '#e5e7eb',
+          color: 'rgb(229, 231, 235)',
+          drawOnChartArea: true,
         },
         border: {
-          color: '#e5e7eb',
+          color: 'rgb(229, 231, 235)',
         },
       },
     },
@@ -135,7 +137,7 @@ const Charts: React.FC<ChartsProps> = ({ priorityStats, completionTrend }) => {
       legend: {
         position: 'bottom' as const,
         labels: {
-          color: '#6b7280',
+          color: 'rgb(107, 114, 128)', // Fixed grey color
           font: {
             size: 12,
           },

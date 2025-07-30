@@ -113,7 +113,7 @@ const TimeAnalytics: React.FC<TimeAnalyticsProps> = ({ data }) => {
         display: true,
         position: 'top' as const,
         labels: {
-          color: '#6b7280',
+          color: 'rgb(107, 114, 128)', // Fixed grey color
           font: {
             size: 12,
           },
@@ -141,13 +141,14 @@ const TimeAnalytics: React.FC<TimeAnalyticsProps> = ({ data }) => {
     scales: {
       x: {
         grid: {
-          color: '#e5e7eb',
+          color: 'rgb(229, 231, 235)',
+          drawOnChartArea: true,
         },
         border: {
-          color: '#e5e7eb',
+          color: 'rgb(229, 231, 235)',
         },
         ticks: {
-          color: '#9ca3af',
+          color: 'rgb(156, 163, 175)',
           font: {
             size: 12,
           },
@@ -156,13 +157,14 @@ const TimeAnalytics: React.FC<TimeAnalyticsProps> = ({ data }) => {
       y: {
         beginAtZero: true,
         grid: {
-          color: '#e5e7eb',
+          color: 'rgb(229, 231, 235)',
+          drawOnChartArea: true,
         },
         border: {
-          color: '#e5e7eb',
+          color: 'rgb(229, 231, 235)',
         },
         ticks: {
-          color: '#9ca3af',
+          color: 'rgb(156, 163, 175)',
           font: {
             size: 12,
           },
