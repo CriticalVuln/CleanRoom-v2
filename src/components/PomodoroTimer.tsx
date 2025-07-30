@@ -13,10 +13,12 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
   onSessionComplete, 
   onTimeUpdate 
 }) => {
-  const [elapsedTime, setElapsedTime] = useState(0); // elapsed time in seconds
   const [isRunning, setIsRunning] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
+  const [elapsedTime, setElapsedTime] = useState(0); // elapsed time in seconds
+
+  const storageKey = `pomodoro-${todoId}`;
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -29,6 +31,45 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Load timer state from localStorage on component mount
+  useEffect(() => {
+    const savedState = localStorage.getItem(storageKey);
+    if (savedState) {
+      try {
+        const { sessionId: savedSessionId, sessionStartTime: savedStartTime, isRunning: savedIsRunning } = JSON.parse(savedState);
+        if (savedIsRunning && savedStartTime && savedSessionId) {
+          setSessionId(savedSessionId);
+          setSessionStartTime(new Date(savedStartTime));
+          setIsRunning(true);
+        }
+      } catch (error) {
+        console.error('Error loading timer state:', error);
+        localStorage.removeItem(storageKey);
+      }
+    }
+  }, [storageKey]);
+
+  // Save timer state to localStorage whenever it changes
+  useEffect(() => {
+    if (isRunning && sessionStartTime && sessionId) {
+      localStorage.setItem(storageKey, JSON.stringify({
+        sessionId,
+        sessionStartTime: sessionStartTime.toISOString(),
+        isRunning: true
+      }));
+    } else {
+      localStorage.removeItem(storageKey);
+    }
+  }, [isRunning, sessionStartTime, sessionId, storageKey]);
+
+  const updateElapsedTime = useCallback(() => {
+    if (sessionStartTime && isRunning) {
+      const now = new Date();
+      const elapsed = Math.floor((now.getTime() - sessionStartTime.getTime()) / 1000);
+      setElapsedTime(elapsed);
+    }
+  }, [sessionStartTime, isRunning]);
+
   const toggleTimer = useCallback(() => {
     if (!isRunning) {
       // Start the timer
@@ -37,6 +78,7 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
       setSessionId(newSessionId);
       setSessionStartTime(startTime);
       setIsRunning(true);
+      setElapsedTime(0);
     } else {
       // Stop the timer and complete the session
       if (sessionId && sessionStartTime) {
@@ -85,19 +127,49 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
     setSessionStartTime(null);
   }, [sessionId, sessionStartTime, isRunning, onSessionComplete, onTimeUpdate]);
 
+  // Update elapsed time based on actual timestamps
   useEffect(() => {
     let interval: number;
 
-    if (isRunning) {
+    if (isRunning && sessionStartTime) {
+      // Update immediately
+      updateElapsedTime();
+      
+      // Then update every second
       interval = setInterval(() => {
-        setElapsedTime((prev) => prev + 1);
+        updateElapsedTime();
       }, 1000);
     }
 
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isRunning]);
+  }, [isRunning, sessionStartTime, updateElapsedTime]);
+
+  // Handle page visibility changes to ensure accurate timing
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && isRunning) {
+        // Page became visible, update the time immediately
+        updateElapsedTime();
+      }
+    };
+
+    const handleFocus = () => {
+      if (isRunning) {
+        // Window got focus, update the time immediately
+        updateElapsedTime();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [isRunning, updateElapsedTime]);
 
   // Calculate progress as a percentage (for visual indicator after 25 minutes)
   const progress = Math.min((elapsedTime / (25 * 60)) * 100, 100);
