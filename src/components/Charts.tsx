@@ -94,7 +94,7 @@ const Charts: React.FC<ChartsProps> = ({ priorityStats, completionTrend }) => {
       legend: {
         position: 'top' as const,
         labels: {
-          color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151',
+          color: '#6b7280',
           font: {
             size: 12,
           },
@@ -105,24 +105,24 @@ const Charts: React.FC<ChartsProps> = ({ priorityStats, completionTrend }) => {
       y: {
         beginAtZero: true,
         ticks: {
-          color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#6b7280',
+          color: '#9ca3af',
         },
         grid: {
-          color: document.documentElement.classList.contains('dark') ? '#374151' : '#e5e7eb',
+          color: '#e5e7eb',
         },
         border: {
-          color: document.documentElement.classList.contains('dark') ? '#374151' : '#e5e7eb',
+          color: '#e5e7eb',
         },
       },
       x: {
         ticks: {
-          color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#6b7280',
+          color: '#9ca3af',
         },
         grid: {
-          color: document.documentElement.classList.contains('dark') ? '#374151' : '#e5e7eb',
+          color: '#e5e7eb',
         },
         border: {
-          color: document.documentElement.classList.contains('dark') ? '#374151' : '#e5e7eb',
+          color: '#e5e7eb',
         },
       },
     },
@@ -135,7 +135,7 @@ const Charts: React.FC<ChartsProps> = ({ priorityStats, completionTrend }) => {
       legend: {
         position: 'bottom' as const,
         labels: {
-          color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151',
+          color: '#6b7280',
           font: {
             size: 12,
           },

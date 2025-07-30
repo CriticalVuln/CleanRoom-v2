@@ -105,7 +105,7 @@ const TimeAnalytics: React.FC<TimeAnalyticsProps> = ({ data }) => {
         display: true,
         position: 'top' as const,
         labels: {
-          color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151',
+          color: '#6b7280',
           font: {
             size: 12,
           },
@@ -133,13 +133,13 @@ const TimeAnalytics: React.FC<TimeAnalyticsProps> = ({ data }) => {
     scales: {
       x: {
         grid: {
-          color: document.documentElement.classList.contains('dark') ? '#374151' : '#e5e7eb',
+          color: '#e5e7eb',
         },
         border: {
-          color: document.documentElement.classList.contains('dark') ? '#374151' : '#e5e7eb',
+          color: '#e5e7eb',
         },
         ticks: {
-          color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#6b7280',
+          color: '#9ca3af',
           font: {
             size: 12,
           },
@@ -148,13 +148,13 @@ const TimeAnalytics: React.FC<TimeAnalyticsProps> = ({ data }) => {
       y: {
         beginAtZero: true,
         grid: {
-          color: document.documentElement.classList.contains('dark') ? '#374151' : '#e5e7eb',
+          color: '#e5e7eb',
         },
         border: {
-          color: document.documentElement.classList.contains('dark') ? '#374151' : '#e5e7eb',
+          color: '#e5e7eb',
         },
         ticks: {
-          color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#6b7280',
+          color: '#9ca3af',
           font: {
             size: 12,
           },
