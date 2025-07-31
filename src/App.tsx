@@ -23,6 +23,7 @@ function App() {
     clearAllData,
     exportData,
     importData,
+    runCleanup,
   } = useTodos();
 
   return (
@@ -62,6 +63,7 @@ function App() {
           onClearData={clearAllData}
           onExportData={exportData}
           onImportData={importData}
+          onRunCleanup={runCleanup}
         />
       </div>
     </div>

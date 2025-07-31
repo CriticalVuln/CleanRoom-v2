@@ -1,13 +1,52 @@
 import { useState, useEffect } from 'react';
 import { Todo, TodoStats, TimeData } from '../types';
-import { format, startOfDay, endOfDay, subDays } from 'date-fns';
+import { format, startOfDay, endOfDay, subDays, isAfter } from 'date-fns';
 
 const STORAGE_KEY = 'todo-dashboard-data';
 const SETTINGS_KEY = 'todo-dashboard-settings';
+const LAST_CLEANUP_KEY = 'todo-dashboard-last-cleanup';
+const CLEANUP_DAYS = 7; // Keep completed tasks for 7 days
 
 export const useTodos = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [darkMode, setDarkMode] = useState(false);
+
+  // Cleanup old completed tasks
+  const cleanupOldTasks = (taskList: Todo[]) => {
+    const cutoffDate = subDays(new Date(), CLEANUP_DAYS);
+    return taskList.filter(todo => {
+      // Keep all pending tasks
+      if (!todo.completed) return true;
+      
+      // Keep completed tasks that are less than CLEANUP_DAYS old
+      if (todo.completedAt && isAfter(todo.completedAt, cutoffDate)) return true;
+      
+      // Remove old completed tasks
+      return false;
+    });
+  };
+
+  // Check if daily cleanup is needed
+  const shouldRunCleanup = () => {
+    try {
+      const lastCleanup = localStorage.getItem(LAST_CLEANUP_KEY);
+      if (!lastCleanup) return true;
+      
+      const lastCleanupDate = new Date(lastCleanup);
+      const today = startOfDay(new Date());
+      const lastCleanupDay = startOfDay(lastCleanupDate);
+      
+      // Run cleanup if it's a new day
+      return isAfter(today, lastCleanupDay);
+    } catch {
+      return true;
+    }
+  };
+
+  // Mark cleanup as completed for today
+  const markCleanupCompleted = () => {
+    localStorage.setItem(LAST_CLEANUP_KEY, new Date().toISOString());
+  };
 
   // Load data from localStorage on mount
   useEffect(() => {
@@ -15,7 +54,7 @@ export const useTodos = () => {
       const savedData = localStorage.getItem(STORAGE_KEY);
       if (savedData) {
         const parsed = JSON.parse(savedData);
-        setTodos(parsed.todos.map((todo: any) => ({
+        let loadedTodos = parsed.todos.map((todo: any) => ({
           ...todo,
           createdAt: new Date(todo.createdAt),
           completedAt: todo.completedAt ? new Date(todo.completedAt) : undefined,
@@ -25,7 +64,15 @@ export const useTodos = () => {
             startTime: new Date(session.startTime),
             endTime: session.endTime ? new Date(session.endTime) : undefined,
           })) || [],
-        })));
+        }));
+
+        // Run cleanup if needed
+        if (shouldRunCleanup()) {
+          loadedTodos = cleanupOldTasks(loadedTodos);
+          markCleanupCompleted();
+        }
+
+        setTodos(loadedTodos);
       } else {
         // If no data in localStorage, start with empty array
         setTodos([]);
@@ -319,6 +366,13 @@ export const useTodos = () => {
     reader.readAsText(file);
   };
 
+  // Manual cleanup function for users
+  const runCleanup = () => {
+    const cleanedTodos = cleanupOldTasks(todos);
+    setTodos(cleanedTodos);
+    markCleanupCompleted();
+  };
+
   return {
     todos,
     darkMode,
@@ -334,5 +388,6 @@ export const useTodos = () => {
     clearAllData,
     exportData,
     importData,
+    runCleanup,
   };
 };

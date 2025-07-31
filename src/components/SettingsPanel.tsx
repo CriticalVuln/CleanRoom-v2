@@ -5,12 +5,14 @@ interface SettingsPanelProps {
   onClearData: () => void;
   onExportData: () => void;
   onImportData: (file: File) => void;
+  onRunCleanup: () => void;
 }
 
 const SettingsPanel: React.FC<SettingsPanelProps> = ({
   onClearData,
   onExportData,
   onImportData,
+  onRunCleanup,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -89,6 +91,17 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
               
               <button
                 onClick={() => {
+                  onRunCleanup();
+                  setIsOpen(false);
+                }}
+                className="w-full bg-blue-100 dark:bg-blue-900/20 hover:bg-blue-200 dark:hover:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-medium px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 justify-center"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Clean Old Tasks
+              </button>
+              
+              <button
+                onClick={() => {
                   onClearData();
                   setIsOpen(false);
                 }}
@@ -103,7 +116,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
           <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Export your data to create backups, or import previously exported data. 
-              Sample data can help you explore all features.
+              Clean Old Tasks removes completed tasks older than 7 days to keep your interface tidy.
             </p>
           </div>
         </div>
