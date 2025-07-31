@@ -10,6 +10,7 @@ import {
   ArcElement,
 } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
+import ActivityHeatMap from './ActivityHeatMap';
 
 ChartJS.register(
   CategoryScale,
@@ -34,9 +35,10 @@ interface ChartsProps {
     '180days': { date: string; completed: number }[];
     '1year': { date: string; completed: number }[];
   };
+  todos: any[];
 }
 
-const Charts: React.FC<ChartsProps> = ({ priorityStats, completionTrend }) => {
+const Charts: React.FC<ChartsProps> = ({ priorityStats, completionTrend, todos }) => {
   const [timePeriod, setTimePeriod] = useState<'7days' | '30days' | '180days' | '1year'>('7days');
   const [trendTimePeriod, setTrendTimePeriod] = useState<'7days' | '30days' | '180days' | '1year'>('7days');
 
@@ -149,34 +151,44 @@ const Charts: React.FC<ChartsProps> = ({ priorityStats, completionTrend }) => {
 
   return (
     <div className="space-y-4">
-      {/* Priority Distribution */}
-      <div className="card p-4">
-        <div className="flex justify-between items-center mb-3">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Completed Task Priorities
-          </h3>
-          <div className="flex gap-1">
-            {(['7days', '30days', '180days', '1year'] as const).map((period) => (
-              <button
-                key={period}
-                onClick={() => setTimePeriod(period)}
-                className={`px-2 py-1 text-xs rounded transition-colors ${
-                  timePeriod === period
-                    ? 'bg-purple-500 text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
-                }`}
-              >
-                {getTimePeriodLabel(period)}
-              </button>
-            ))}
+      {/* Priority Distribution and Placeholder Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Priority Distribution - Half Width */}
+        <div className="card p-4">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+              Task Priorities
+            </h3>
+            <div className="flex gap-1">
+              {(['7days', '30days', '180days', '1year'] as const).map((period) => (
+                <button
+                  key={period}
+                  onClick={() => setTimePeriod(period)}
+                  className={`px-1.5 py-0.5 text-xs rounded transition-colors ${
+                    timePeriod === period
+                      ? 'bg-purple-500 text-white'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  {getTimePeriodLabel(period)}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="h-48">
+            <Doughnut data={priorityData} options={doughnutOptions} />
           </div>
         </div>
-        <div className="h-48">
-          <Doughnut data={priorityData} options={doughnutOptions} />
+
+        {/* Activity Heat Map - Half Width */}
+        <div className="card p-4">
+          <div className="h-48 overflow-hidden">
+            <ActivityHeatMap todos={todos} />
+          </div>
         </div>
       </div>
 
-      {/* Completion Trend */}
+      {/* Completion Trend - Full Width */}
       <div className="card p-4">
         <div className="flex justify-between items-center mb-3">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">

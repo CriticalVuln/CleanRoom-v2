@@ -24,6 +24,7 @@ function App() {
     exportData,
     importData,
     runCleanup,
+    upgradeOverdueTasks,
   } = useTodos();
 
   return (
@@ -53,7 +54,8 @@ function App() {
           <div className="col-span-12 xl:col-span-8 space-y-6">
             <Charts 
               priorityStats={getPriorityStats()} 
-              completionTrend={getCompletionTrend()} 
+              completionTrend={getCompletionTrend()}
+              todos={todos}
             />
             <TimeAnalytics data={getTimeAnalytics()} />
           </div>
@@ -64,6 +66,7 @@ function App() {
           onExportData={exportData}
           onImportData={importData}
           onRunCleanup={runCleanup}
+          onUpgradeOverdueTasks={upgradeOverdueTasks}
         />
       </div>
     </div>

@@ -1,11 +1,12 @@
 import React, { useState, useRef } from 'react';
-import { Settings, Download, Upload, RefreshCw, Trash2, X } from 'lucide-react';
+import { Settings, Download, Upload, RefreshCw, Trash2, X, AlertTriangle } from 'lucide-react';
 
 interface SettingsPanelProps {
   onClearData: () => void;
   onExportData: () => void;
   onImportData: (file: File) => void;
   onRunCleanup: () => void;
+  onUpgradeOverdueTasks: () => void;
 }
 
 const SettingsPanel: React.FC<SettingsPanelProps> = ({
@@ -13,6 +14,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
   onExportData,
   onImportData,
   onRunCleanup,
+  onUpgradeOverdueTasks,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -102,6 +104,17 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
               
               <button
                 onClick={() => {
+                  onUpgradeOverdueTasks();
+                  setIsOpen(false);
+                }}
+                className="w-full bg-orange-100 dark:bg-orange-900/20 hover:bg-orange-200 dark:hover:bg-orange-900/40 text-orange-700 dark:text-orange-300 font-medium px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 justify-center"
+              >
+                <AlertTriangle className="h-4 w-4" />
+                Upgrade Overdue Tasks
+              </button>
+              
+              <button
+                onClick={() => {
                   onClearData();
                   setIsOpen(false);
                 }}
@@ -117,6 +130,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Export your data to create backups, or import previously exported data. 
               Clean Old Tasks removes completed tasks older than 7 days to keep your interface tidy.
+              Upgrade Overdue Tasks automatically sets incomplete tasks from previous days to high priority.
             </p>
           </div>
         </div>

@@ -48,6 +48,32 @@ export const useTodos = () => {
     localStorage.setItem(LAST_CLEANUP_KEY, new Date().toISOString());
   };
 
+  // Upgrade priority for overdue tasks (created previous day or earlier and not completed)
+  const upgradeOverduePriorities = (taskList: Todo[]) => {
+    const today = startOfDay(new Date());
+    
+    return taskList.map(todo => {
+      // Skip completed tasks
+      if (todo.completed) return todo;
+      
+      // Skip tasks already at high priority
+      if (todo.priority === 'high') return todo;
+      
+      // Check if task was created before today
+      const taskCreatedDate = startOfDay(todo.createdAt);
+      const isOverdue = isAfter(today, taskCreatedDate);
+      
+      if (isOverdue) {
+        return {
+          ...todo,
+          priority: 'high' as const
+        };
+      }
+      
+      return todo;
+    });
+  };
+
   // Load data from localStorage on mount
   useEffect(() => {
     try {
@@ -71,6 +97,9 @@ export const useTodos = () => {
           loadedTodos = cleanupOldTasks(loadedTodos);
           markCleanupCompleted();
         }
+
+        // Upgrade overdue task priorities
+        loadedTodos = upgradeOverduePriorities(loadedTodos);
 
         setTodos(loadedTodos);
       } else {
@@ -373,6 +402,12 @@ export const useTodos = () => {
     markCleanupCompleted();
   };
 
+  // Manual priority upgrade function for users
+  const upgradeOverdueTasks = () => {
+    const upgradedTodos = upgradeOverduePriorities(todos);
+    setTodos(upgradedTodos);
+  };
+
   return {
     todos,
     darkMode,
@@ -389,5 +424,6 @@ export const useTodos = () => {
     exportData,
     importData,
     runCleanup,
+    upgradeOverdueTasks,
   };
 };
